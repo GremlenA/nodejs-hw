@@ -23,7 +23,7 @@ app.use(pino({
   }));
 
 app.get("/notes",(req,res) =>{
-    res.status(200).json({"message": "Retrieved all notes"});
+    res.status(200).json({"message": "All notes have been retrieved"});
 });
 
 app.get("/notes/:noteId",(req,res)=>{
@@ -31,7 +31,7 @@ app.get("/notes/:noteId",(req,res)=>{
     res.status(200).json({"message": `Retrieved note with ID: ${noteId}`});
 });
 //штучна помилка
-app.get("/test-error",(res,req)=>{
+app.get("/test-error",(req,res)=>{
     throw new Error('Simulated server error');
 });
 
@@ -46,5 +46,5 @@ app.use((err,req,res,next)=>{
 
 });
 app.listen(PORT,()=>{
-  console.log(`Сервер пытается запуститься на порту: ${PORT}`);
+  console.log(`The server is trying to start on port: ${PORT}`);
 });
