@@ -1,4 +1,3 @@
-
 import { Schema, model } from 'mongoose';
 import { TAGS } from '../constants/tags.js';
 
@@ -17,15 +16,17 @@ const noteSchema = new Schema(
     tag: {
       type: String,
       enum: TAGS,
-      default: 'Personal',
+      default: 'Todo',
     },
   },
-
   {
     timestamps: true,
     versionKey: false,
   }
 );
 
+
 noteSchema.index({ title: 'text', content: 'text' });
-export const Note = model('note', noteSchema,"Note");
+
+
+export const Note = model('Note', noteSchema);
