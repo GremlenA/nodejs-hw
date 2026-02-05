@@ -3,8 +3,10 @@ import { getAllNotes,getNoteById } from "../controllers/notesController.js";
 import { createNote,deleteNote, updateNote} from "../controllers/notesController.js";
 import { celebrate } from "celebrate";
 import { updateNoteSchema,noteIdSchema,getAllNotesSchema,createNoteSchema} from "../validations/notesValidation.js";
-const router = Router();
+import { authenticate } from "../middleware/authenticate.js";
 
+const router = Router();
+router.use("/notes",authenticate);
 router.get("/notes",celebrate(getAllNotesSchema),getAllNotes, );
 router.get("/notes/:noteId",celebrate(noteIdSchema),getNoteById);
 router.post("/notes",celebrate(createNoteSchema),createNote);
