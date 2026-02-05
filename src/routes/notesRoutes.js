@@ -1,16 +1,133 @@
-import { Router } from "express";
-import { getAllNotes,getNoteById } from "../controllers/notesController.js";
-import { createNote,deleteNote, updateNote} from "../controllers/notesController.js";
-import { celebrate } from "celebrate";
-import { updateNoteSchema,noteIdSchema,getAllNotesSchema,createNoteSchema} from "../validations/notesValidation.js";
-import { authenticate } from "../middleware/authenticate.js";
+import { Note } from "../models/note.js";
+import createHttpError from 'http-errors';
 
-const router = Router();
-router.use("/notes",authenticate);
-router.get("/notes",celebrate(getAllNotesSchema),getAllNotes, );
-router.get("/notes/:noteId",celebrate(noteIdSchema),getNoteById);
-router.post("/notes",celebrate(createNoteSchema),createNote);
-router.delete("/notes/:noteId",celebrate(noteIdSchema),deleteNote);
-router.patch("/notes/:noteId",celebrate(updateNoteSchema),updateNote);
+export const getAllNotes = async (req, res, next) => {
+  try {
 
-export default router;
+    const { _id: userId } = req.user;
+
+    const { page = 1, perPage = 10, tag, search } = req.query;
+
+
+    const limit = Number(perPage);
+    const pageNumber = Number(page);
+    const skip = (pageNumber - 1) * limit;
+
+
+    const notesQuery = Note.find({ userId });
+
+
+    if (tag) {
+      notesQuery.where('tag').equals(tag);
+    }
+
+    if (search) {
+      notesQuery.where({ $text: { $search: search } });
+    }
+
+    const [totalNotes, notes] = await Promise.all([
+      notesQuery.clone().countDocuments(),
+      notesQuery.skip(skip).limit(limit),
+    ]);
+
+    const totalPages = Math.ceil(totalNotes / limit);
+
+
+    res.status(200).json({
+      notes,
+      totalNotes,
+      totalPages,
+      page: pageNumber,
+      perPage: limit,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getNoteById = async (req, res, next) => {
+  try {
+    const { noteId } = req.params;
+    const { _id: userId } = req.user;
+
+
+    const note = await Note.findOne({ _id: noteId, userId });
+
+    if (!note) {
+      throw createHttpError(404, 'Note not found');
+    }
+
+    res.status(200).json({
+      status: 200,
+      message: `Successfully found note with id ${noteId}`,
+      data: note,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const createNote = async (req, res, next) => {
+  try {
+    const { _id: userId } = req.user;
+
+
+    const note = await Note.create({
+      ...req.body,
+      userId,
+    });
+
+    res.status(201).json({
+      status: 201,
+      message: "Successfully created a note",
+      data: note,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteNote = async (req, res, next) => {
+  try {
+    const { noteId } = req.params;
+    const { _id: userId } = req.user;
+
+    const note = await Note.findOneAndDelete({ _id: noteId, userId });
+
+    if (!note) {
+      throw createHttpError(404, "Note not found");
+    }
+
+    res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateNote = async (req, res, next) => {
+  try {
+    const { noteId } = req.params;
+    const { _id: userId } = req.user;
+
+    const note = await Note.findOneAndUpdate(
+      { _id: noteId, userId },
+      req.body,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    if (!note) {
+      throw createHttpError(404, "Note not found");
+    }
+
+    res.status(200).json({
+      status: 200,
+      message: "Successfully updated a note",
+      data: note,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
