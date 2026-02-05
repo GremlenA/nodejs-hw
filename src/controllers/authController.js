@@ -60,7 +60,7 @@ export const logoutUser = async (req, res) => {
   res.status(204).send();
 };
 
-export const refresUserSession = async (req,res,next) =>
+export const refreshUserSession = async (req,res,next) =>
   {
 
   const session = await Session.findOne({
