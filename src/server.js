@@ -8,7 +8,7 @@ import notesRoutes from "./routes/notesRoutes.js";
 import { connectMongoDB } from './db/connectMongoDB.js';
 import { errors } from 'celebrate';
 import { registerUser } from './controllers/authController.js';
-import  {router} from "./routes/authRoutes.js";
+import  router from "./routes/authRoutes.js";
 import cookieParser from "cookie-parser";
 
 const app = express();
