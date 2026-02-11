@@ -1,5 +1,5 @@
 import cloudinary from "cloudinary";
-import { Readable } from "nodemailer/lib/xoauth2";
+import { Readable } from "node:stream";
 
 cloudinary.config({
   secure: true,
