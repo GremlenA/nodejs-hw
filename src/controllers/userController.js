@@ -8,7 +8,6 @@ export const updateUserAvatar = async (req, res, next) => {
       throw createHttpError(400, "No file uploaded");
     }
 
-
     const result = await saveFileToCloudinary(req.file.buffer);
 
     const updateUser = await User.findOneAndUpdate(
@@ -18,8 +17,13 @@ export const updateUserAvatar = async (req, res, next) => {
     );
 
     res.status(200).json({
-      avatar: updateUser.avatar,
+      status: 200,
+      message: "Successfully updated user avatar",
+      data: {
+        url: updateUser.avatar,
+      }
     });
+
   } catch (error) {
     next(error);
   }
