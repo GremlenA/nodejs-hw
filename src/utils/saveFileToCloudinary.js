@@ -1,4 +1,4 @@
-import cloudinary from "cloudinary";
+import { v2 as cloudinary } from "cloudinary";
 import { Readable } from "node:stream";
 
 cloudinary.config({
@@ -8,19 +8,23 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-export const saveFileToCloudinsry = async (buffer, userId) => {
-return new Promise((resolve,reject) =>
-{
- const uploadStream = cloudinary.UploadStream.upload_stream(
-  {
-    folder: "",
-    resource_type:"image",
-    public_id: `avatar_${userId}`,
-    overwrite:true,
-  },
-  (err,result)=>{err ? reject(err) : resolve(result);},);
+export const saveFileToCloudinary = async (buffer) => {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder: "avatars",
+        use_filename: true,
+        unique_filename: true,
+        resource_type: "image",
+      },
+      (error, result) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve(result);
+      }
+    );
 
-
-  Readable.from(buffer).pipe(uploadStream);
-});
+    Readable.from(buffer).pipe(uploadStream);
+  });
 };
